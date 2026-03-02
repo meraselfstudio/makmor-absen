@@ -12,22 +12,20 @@ export default function WebcamFeed({ webcamRef, onReady }) {
     const [status, setStatus] = useState('loading') // loading | ready | error
     const [faceDetected, setFaceDetected] = useState(false)
 
+    const handleUserMediaError = useCallback(() => {
+        setStatus('error')
+    }, [])
+
     const handleUserMedia = useCallback(() => {
         setStatus('ready')
-        // Simulate "face detection" after 2 seconds of camera being ready
         setTimeout(() => {
             setFaceDetected(true)
             onReady?.()
         }, 1000)
     }, [onReady])
 
-    const handleUserMediaError = useCallback(() => {
-        setStatus('error')
-    }, [])
-
     return (
-        <div className="relative w-full h-full rounded-2xl overflow-hidden"
-            style={{ background: '#0a0505', border: '1px solid var(--color-border)' }}>
+        <div className="relative w-full h-full overflow-hidden bg-black">
 
             {/* Webcam stream */}
             {status !== 'error' && (
@@ -44,88 +42,74 @@ export default function WebcamFeed({ webcamRef, onReady }) {
                 />
             )}
 
+            {/* Screen overlay to make UI readable */}
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 20%, transparent 60%, rgba(0,0,0,0.8) 100%)' }} />
+
             {/* Loading state */}
             {status === 'loading' && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3"
-                    style={{ background: '#0a0505' }}>
-                    <Loader2 size={40} className="animate-spin" style={{ color: '#C8222A' }} />
-                    <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Mengaktifkan kamera...</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 backdrop-blur-md bg-black/40 z-10">
+                    <Loader2 size={40} className="animate-spin text-white" />
                 </div>
             )}
 
             {/* Error state */}
             {status === 'error' && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3"
-                    style={{ background: '#0a0505' }}>
-                    <AlertCircle size={40} style={{ color: '#ef4444' }} />
-                    <p className="text-sm font-medium" style={{ color: '#ef4444' }}>Kamera tidak dapat diakses</p>
-                    <p className="text-xs text-center px-6" style={{ color: 'var(--color-text-muted)' }}>
-                        Pastikan browser memiliki izin untuk menggunakan kamera
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black z-10 p-6 text-center">
+                    <AlertCircle size={40} className="text-red-500" />
+                    <p className="text-base font-medium text-white">Camera Access Denied</p>
+                    <p className="text-sm text-white/60">
+                        Please allow camera permissions in your browser to use Face ID.
                     </p>
                 </div>
             )}
 
-            {/* === SCANNER OVERLAY === */}
+            {/* === HUD OVERLAY (Apple FaceID Style) === */}
             {status === 'ready' && (
-                <>
-                    {/* Grid background */}
-                    <div className="scan-grid absolute inset-0 pointer-events-none" />
+                <div className="absolute inset-x-0 top-[20vh] md:top-[25vh] flex flex-col items-center justify-center pointer-events-none">
+                    {/* Face detection frame */}
+                    <div
+                        className="relative transition-all duration-700 ease-in-out"
+                        style={{
+                            width: '280px',
+                            height: '280px',
+                            borderRadius: '3rem',
+                            border: `2px solid ${faceDetected ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.3)'}`,
+                            boxShadow: faceDetected ? '0 0 40px rgba(255,255,255,0.2)' : 'none'
+                        }}
+                    >
+                        {/* Scanning line animation */}
+                        {!faceDetected && (
+                            <div className="absolute left-0 right-0 h-[2px] bg-white opacity-50 shadow-[0_0_8px_white]"
+                                style={{ animation: 'scanline 2s cubic-bezier(0.4, 0, 0.2, 1) infinite' }} />
+                        )}
 
-                    {/* Moving scanline */}
-                    <div className="scan-line absolute left-0 right-0 pointer-events-none" style={{ top: '20%' }} />
-
-                    {/* Corner brackets */}
-                    <div className="corner-tl" />
-                    <div className="corner-tr" />
-                    <div className="corner-bl" />
-                    <div className="corner-br" />
-
-                    {/* Face detection ring */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div
-                            className="face-ring transition-all duration-700"
-                            style={{
-                                width: '38%',
-                                paddingBottom: '45%',
-                                borderColor: faceDetected ? 'rgba(16,185,129,0.8)' : 'rgba(200,34,42,0.75)',
-                            }}
-                        />
-                    </div>
-
-                    {/* Status label */}
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
-                        <div className="flex items-center gap-2 px-3 py-1 rounded-full"
-                            style={{
-                                background: faceDetected ? 'rgba(16,185,129,0.15)' : 'rgba(200,34,42,0.15)',
-                                border: `1px solid ${faceDetected ? 'rgba(16,185,129,0.4)' : 'rgba(200,34,42,0.45)'}`,
-                                backdropFilter: 'blur(8px)',
-                            }}>
-                            <span
-                                className="w-2 h-2 rounded-full"
+                        {/* Status Label (Glass Pill) */}
+                        <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                            <div className="flex items-center gap-2 px-4 py-2 rounded-full"
                                 style={{
-                                    background: faceDetected ? '#10b981' : '#C8222A',
-                                    animation: 'dot-blink 1.2s ease-in-out infinite',
-                                }}
-                            />
-                            <span className="text-xs font-medium" style={{ fontFamily: "'JetBrains Mono', monospace", color: faceDetected ? '#10b981' : '#E03038' }}>
-                                {faceDetected ? 'WAJAH TERDETEKSI' : 'MEMINDAI WAJAH...'}
-                            </span>
+                                    background: 'rgba(0,0,0,0.4)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    backdropFilter: 'blur(16px)',
+                                }}>
+                                {faceDetected ? (
+                                    <>
+                                        <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                                        <span className="text-[11px] font-semibold text-white tracking-widest uppercase">
+                                            Face Detected
+                                        </span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Loader2 size={12} className="text-white/70 animate-spin" />
+                                        <span className="text-[11px] font-medium text-white/70 tracking-widest uppercase">
+                                            Position your face
+                                        </span>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
-
-                    {/* Top label */}
-                    <div className="absolute top-3 left-3 flex items-center gap-2">
-                        <Camera size={12} style={{ color: '#C8222A' }} />
-                        <span className="text-xs font-mono" style={{ color: '#6b5e5e' }}>LIVE • FACIAL RECOGNITION</span>
-                    </div>
-
-                    {/* REC dot */}
-                    <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-red-600"
-                            style={{ animation: 'dot-blink 1s ease-in-out infinite' }} />
-                        <span className="text-xs font-mono text-red-500">REC</span>
-                    </div>
-                </>
+                </div>
             )}
         </div>
     )

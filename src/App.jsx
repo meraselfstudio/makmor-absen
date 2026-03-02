@@ -94,88 +94,48 @@ export default function App() {
   }, [captureAndSubmit])
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden" style={{ background: 'var(--color-bg-primary)' }}>
-      <Header />
+    <div className="relative h-[100dvh] w-screen overflow-hidden bg-black text-white">
 
-      <main className="flex flex-1 gap-0 overflow-hidden">
-        {/* ── LEFT: Webcam (60%) ── */}
-        <div className="flex flex-col p-6 gap-4" style={{ flex: '0 0 60%' }}>
-          {/* Security badge */}
-          <div className="flex items-center gap-2">
-            <ShieldCheck size={14} style={{ color: '#C8222A' }} />
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#C8222A' }}>
-              Sistem Keamanan Biometrik
-            </span>
-          </div>
+      {/* ── BACKGROUND: Webcam (100% full screen) ── */}
+      <div className="absolute inset-0 z-0 bg-black">
+        <WebcamFeed webcamRef={webcamRef} onReady={() => setWebcamReady(true)} />
+      </div>
 
-          {/* Webcam area */}
-          <div className="flex-1 min-h-0">
-            <WebcamFeed webcamRef={webcamRef} onReady={() => setWebcamReady(true)} />
-          </div>
+      {/* ── FLOATING HEADER ── */}
+      <div className="absolute top-6 mx-4 md:mx-auto left-0 right-0 max-w-sm z-20 pointer-events-none">
+        <Header />
+      </div>
 
-          {/* Footnote */}
-          <p className="text-center text-xs" style={{ color: '#334155' }}>
-            Sistem ini menggunakan pengenalan wajah untuk verifikasi identitas karyawan
-          </p>
-        </div>
+      {/* ── FLOATING BOTTOM CONTROLS (Glass Container) ── */}
+      <div className="absolute bottom-6 mx-4 md:mx-auto left-0 right-0 max-w-sm z-20 pb-safe">
+        <div className="backdrop-blur-[40px] bg-black/45 border border-white/10 rounded-[2.5rem] p-5 shadow-2xl flex flex-col gap-4">
 
-        {/* ── DIVIDER ── */}
-        <div style={{ width: '1px', background: 'var(--color-border)', flexShrink: 0 }} />
-
-        {/* ── RIGHT: Form (40%) ── */}
-        <div className="flex flex-col overflow-y-auto px-8 py-6 gap-6" style={{ flex: '0 0 40%' }}>
-
-          {/* Title */}
-          <div>
-            <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+          {/* Title Area */}
+          <div className="text-center mt-1">
+            <h1 className="text-xl font-bold tracking-tight text-white mb-0.5">
               Absensi Karyawan
             </h1>
-            <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>
+            <p className="text-xs font-medium text-white/50">
               Pilih nama, lalu klik tombol absen
             </p>
           </div>
 
-          {/* Employee dropdown */}
           <EmployeeSelect value={employee} onChange={setEmployee} />
 
-          {/* Webcam status */}
-          {!webcamReady && (
-            <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm"
-              style={{ background: 'rgba(200,34,42,0.08)', border: '1px solid rgba(200,34,42,0.18)', color: '#E03038' }}>
-              <Loader2 size={14} className="animate-spin" />
-              Menunggu verifikasi wajah...
-            </div>
-          )}
-
-          {webcamReady && (
-            <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm"
-              style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', color: '#10b981' }}>
-              <ShieldCheck size={14} />
-              Wajah terverifikasi — siap absen
-            </div>
-          )}
-
-          {/* ── Action buttons ── */}
-          <div className="flex flex-col gap-3 mt-2">
+          {/* Action buttons */}
+          <div className="flex flex-col gap-3">
             {/* Absen Masuk */}
             <button
               id="btn-masuk"
               onClick={handleMasuk}
               disabled={!canSubmit}
-              className={`flex items-center justify-center gap-3 w-full py-5 rounded-2xl font-bold text-base transition-all duration-200 ${canSubmit ? 'active:scale-[0.98] btn-primary cursor-pointer' : 'cursor-not-allowed opacity-40'
-                }`}
+              className={`flex items-center justify-center gap-2.5 w-full py-4 rounded-[2rem] font-bold text-base transition-all duration-300 ${canSubmit ? 'active:scale-95 cursor-pointer shadow-lg shadow-red-500/20' : 'cursor-not-allowed opacity-40'}`}
               style={{
-                background: canSubmit
-                  ? 'linear-gradient(135deg, #C8222A 0%, #A01820 100%)'
-                  : 'rgba(30,15,15,0.6)',
-                color: 'white',
-                border: canSubmit ? 'none' : '1px solid var(--color-border)',
+                background: canSubmit ? '#C8222A' : 'rgba(255,255,255,0.06)',
+                color: canSubmit ? '#fff' : 'rgba(255,255,255,0.3)',
               }}
             >
-              {isLoading
-                ? <Loader2 size={20} className="animate-spin" />
-                : <LogIn size={20} />
-              }
+              {isLoading ? <Loader2 size={20} className="animate-spin" /> : <LogIn size={20} />}
               Absen Masuk
             </button>
 
@@ -184,62 +144,40 @@ export default function App() {
               id="btn-pulang"
               onClick={handlePulang}
               disabled={!canSubmit}
-              className={`flex items-center justify-center gap-3 w-full py-5 rounded-2xl font-bold text-base transition-all duration-200 ${canSubmit ? 'active:scale-[0.98] cursor-pointer' : 'cursor-not-allowed opacity-40'
-                }`}
+              className={`flex items-center justify-center gap-2.5 w-full py-4 rounded-[2rem] font-bold text-base transition-all duration-300 ${canSubmit ? 'active:scale-95 cursor-pointer hover:bg-white/10' : 'cursor-not-allowed opacity-40'}`}
               style={{
-                background: canSubmit ? 'rgba(239,68,68,0.1)' : 'rgba(30,32,50,0.6)',
-                color: canSubmit ? '#f87171' : '#475569',
-                border: `1px solid ${canSubmit ? 'rgba(239,68,68,0.3)' : 'var(--color-border)'}`,
-              }}
-              onMouseEnter={(e) => {
-                if (canSubmit) {
-                  e.currentTarget.style.background = 'rgba(239,68,68,0.18)'
-                  e.currentTarget.style.boxShadow = '0 0 20px rgba(239,68,68,0.2)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (canSubmit) {
-                  e.currentTarget.style.background = 'rgba(239,68,68,0.1)'
-                  e.currentTarget.style.boxShadow = 'none'
-                }
+                background: 'rgba(255,255,255,0.08)',
+                color: canSubmit ? '#fff' : 'rgba(255,255,255,0.4)',
+                border: '1px solid rgba(255,255,255,0.05)',
               }}
             >
-              {isLoading
-                ? <Loader2 size={20} className="animate-spin" />
-                : <LogOut size={20} />
-              }
+              {isLoading ? <Loader2 size={20} className="animate-spin" /> : <LogOut size={20} />}
               Absen Pulang
             </button>
           </div>
-
-          {/* Hint when disabled */}
-          {!canSubmit && !isLoading && (
-            <p className="text-center text-xs" style={{ color: '#6b5e5e' }}>
-              {!webcamReady
-                ? 'Menunggu deteksi wajah...'
-                : 'Pilih nama karyawan terlebih dahulu'
-              }
-            </p>
-          )}
         </div>
-      </main>
+      </div>
 
       {/* ── Meal modal ── */}
       {showMealModal && (
-        <MealModal
-          onAnswer={handleMealAnswer}
-          onClose={() => setShowMealModal(false)}
-        />
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+          <MealModal
+            onAnswer={handleMealAnswer}
+            onClose={() => setShowMealModal(false)}
+          />
+        </div>
       )}
 
       {/* ── Toast ── */}
       {toast && (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-50">
+          <Toast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        </div>
       )}
     </div>
   )
