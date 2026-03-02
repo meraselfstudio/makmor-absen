@@ -1,0 +1,268 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* ─── Makmor Brand Colors ─── */
+  --color-accent: #C8222A;
+  /* MAKMOR red */
+  --color-accent-dark: #A01820;
+  /* deeper red */
+  --color-accent-light: #E03038;
+  /* lighter red */
+  --color-accent-brown: #5C2A0E;
+  /* brand brown */
+  --color-accent-glow: rgba(200, 34, 42, 0.4);
+
+  /* ─── Dark backgrounds (warm-tinted dark to complement red) ─── */
+  --color-bg-primary: #0d0a0a;
+  --color-bg-secondary: #130c0c;
+  --color-bg-card: #1a0f0f;
+
+  /* ─── States ─── */
+  --color-success: #10b981;
+  --color-error: #ef4444;
+
+  /* ─── Text ─── */
+  --color-text-primary: #f5f0f0;
+  --color-text-muted: #6b5e5e;
+
+  /* ─── Borders (warm red-tinted) ─── */
+  --color-border: rgba(200, 34, 42, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+/* ─── Scanner animation ─── */
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: translateY(400%);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+    box-shadow: 0 0 0 0 rgba(200, 34, 42, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    opacity: 0.4;
+    box-shadow: 0 0 0 20px rgba(200, 34, 42, 0);
+  }
+
+  100% {
+    transform: scale(0.9);
+    opacity: 0.8;
+    box-shadow: 0 0 0 0 rgba(200, 34, 42, 0);
+  }
+}
+
+@keyframes corner-flash {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes grid-fade {
+
+  0%,
+  100% {
+    opacity: 0.07;
+  }
+
+  50% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes dot-blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(200, 34, 42, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(200, 34, 42, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Webcam overlay layers ─── */
+.scan-grid {
+  background-image:
+    linear-gradient(rgba(200, 34, 42, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200, 34, 42, 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: grid-fade 3s ease-in-out infinite;
+}
+
+.scan-line {
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(200, 34, 42, 0.85) 50%, transparent 100%);
+  animation: scanline 2.5s linear infinite;
+  box-shadow: 0 0 12px rgba(200, 34, 42, 0.9);
+}
+
+.face-ring {
+  border: 2px solid rgba(200, 34, 42, 0.75);
+  border-radius: 50%;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+.corner-tl,
+.corner-tr,
+.corner-bl,
+.corner-br {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-color: #E03038;
+  border-style: solid;
+  animation: corner-flash 1.5s ease-in-out infinite;
+}
+
+.corner-tl {
+  top: 12px;
+  left: 12px;
+  border-width: 3px 0 0 3px;
+}
+
+.corner-tr {
+  top: 12px;
+  right: 12px;
+  border-width: 3px 3px 0 0;
+}
+
+.corner-bl {
+  bottom: 12px;
+  left: 12px;
+  border-width: 0 0 3px 3px;
+}
+
+.corner-br {
+  bottom: 12px;
+  right: 12px;
+  border-width: 0 3px 3px 0;
+}
+
+/* ─── Toast ─── */
+.toast-enter {
+  animation: slide-in-right 0.35s ease forwards;
+}
+
+.toast-exit {
+  animation: slide-out-right 0.35s ease forwards;
+}
+
+/* ─── Button glow ─── */
+.btn-primary {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* ─── Digit box shimmer on active ─── */
+.digit-active {
+  background: linear-gradient(90deg, #1a0e0e 0%, #3a1010 50%, #1a0e0e 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(200, 34, 42, 0.3);
+  border-radius: 2px;
+}
